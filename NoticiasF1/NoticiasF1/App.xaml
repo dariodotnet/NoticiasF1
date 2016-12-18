@@ -2,7 +2,14 @@
     x:Class="NoticiasF1.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:NoticiasF1"
-    RequestedTheme="Light">
+    xmlns:locator="using:NoticiasF1.ViewModels.Base"
+    xmlns:converters="using:NoticiasF1.Converters"
+    RequestedTheme="Dark">
+    <Application.Resources>
+        <ResourceDictionary>
+            <locator:ViewModelLocator x:Key="Locator"/>
 
+            <converters:BooleanToVisibility x:Key="BooleanToVisibility"/>
+        </ResourceDictionary>
+    </Application.Resources>
 </Application>
