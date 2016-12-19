@@ -6,6 +6,7 @@ using NoticiasF1.Views;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
@@ -64,7 +65,7 @@ namespace NoticiasF1.ViewModels
             }
             else
             {
-                await CargaEscalonada();
+                CargaEscalonada();
             }
         }
 
@@ -79,23 +80,42 @@ namespace NoticiasF1.ViewModels
 
         #endregion
 
+        #region Metodos
+
         private async Task CargarNoticias()
         {
             var crawler = new Crawler();
             NoticiasDisponibles.Noticias = await crawler.Noticias();
-            await CargaEscalonada();
+            CargaEscalonada();
             NoticiasDisponibles.NoticiasCargadas = true;
         }
 
-        private async Task CargaEscalonada()
+        private void CargaEscalonada()
         {
-            Noticias = new ObservableCollection<Noticia>();
+            Noticias = new ObservableCollection<Noticia>(NoticiasDisponibles.Noticias);
+        }
 
-            foreach (var noticia in NoticiasDisponibles.Noticias)
+        #endregion
+
+        #region Comandos
+
+        private ICommand refrescarListadoCommand;
+
+        public ICommand RefrescarListadoCommand
+        {
+            get
             {
-                await Task.Delay(500);
-                Noticias.Add(noticia);
+                return refrescarListadoCommand = refrescarListadoCommand ?? new DelegateCommand(RefrescarListadoExecute);
             }
         }
+
+        private async void RefrescarListadoExecute()
+        {
+            BarraDeProgesoVisibilidad = true;
+            await CargarNoticias();
+            BarraDeProgesoVisibilidad = false;
+        }
+
+        #endregion
     }
 }

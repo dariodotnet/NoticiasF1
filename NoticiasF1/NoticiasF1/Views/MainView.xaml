@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:fakeData="using:NoticiasF1.FakeData"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"
     DataContext="{Binding Source={StaticResource Locator}, Path=MainViewModel}"
     d:DataContext="{d:DesignInstance fakeData:FakeItems, IsDesignTimeCreatable= True}">
@@ -20,28 +21,31 @@
                     Orientation="Horizontal"
                     Grid.Row="0"
                     Visibility="{Binding BarraDeProgesoVisibilidad, Converter={StaticResource BooleanToVisibility}}">
-            <ProgressRing IsActive="True" Width="30" Height="30" Foreground="Wheat"
+            <ProgressRing IsActive="True" Width="25" Height="25" Foreground="Wheat"
                           Margin="10 0 5 0"/>
             <TextBlock Text="Actualizando noticias..."
                        VerticalAlignment="Center"
                        Foreground="Wheat"/>
         </StackPanel>
-        <ScrollViewer Grid.Row="1">
-            <ListView ItemsSource="{Binding Noticias}"
-                      SelectionChanged="ViewModel.SelectionChanged"
-                      x:Name="Listado">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Margin="0 5">
-                            <Image Source="{Binding Imagen}" Opacity=".85"
+        <controls:PullToRefreshListView x:Name="Listado"
+                                        ItemsSource="{Binding Noticias}"
+                                        OverscrollLimit="0.2"
+                                        PullThreshold="50"
+                                        RefreshCommand="{Binding RefrescarListadoCommand}"
+                                        Grid.Row="1"
+                                        SelectionChanged="ViewModel.SelectionChanged">
+            <controls:PullToRefreshListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="0 5">
+                        <Image Source="{Binding Imagen}" Opacity=".85"
                                    HorizontalAlignment="Left"
                                    Stretch="UniformToFill"/>
-                            <TextBlock Text="{Binding Fecha}"
+                        <TextBlock Text="{Binding Fecha}"
                                        FontSize="10"
                                        Foreground="Azure"
                                        Margin="0 5 0 0"
                                        FontWeight="SemiBold"/>
-                            <TextBlock Text="{Binding Titulo}"
+                        <TextBlock Text="{Binding Titulo}"
                                        HorizontalAlignment="Center"
                                        FontSize="18"
                                        FontWeight="Bold"
@@ -49,21 +53,21 @@
                                        Opacity=".9"
                                        TextWrapping="Wrap"
                                        Margin="10 5"/>
-                            <Rectangle Fill="Wheat" Height="1"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
-                    </Style>
-                </ListView.ItemContainerStyle>
-                <ListView.ItemContainerTransitions>
-                    <TransitionCollection>
-                        <AddDeleteThemeTransition />
-                    </TransitionCollection>
-                </ListView.ItemContainerTransitions>
-            </ListView>
-        </ScrollViewer>
+                        <Rectangle Fill="Wheat" Height="1"/>
+                    </StackPanel>
+                </DataTemplate>
+            </controls:PullToRefreshListView.ItemTemplate>
+            <!--<controls:PullToRefreshListView.RefreshIndicatorContent>
+                <TextBlock Text="Suelta para actualizar"
+                           Foreground="Wheat"
+                           FontSize="12"
+                           HorizontalAlignment="Center"/>
+            </controls:PullToRefreshListView.RefreshIndicatorContent>-->
+            <controls:PullToRefreshListView.PullToRefreshContent>
+                <TextBlock Text="Actualizando"/>
+            </controls:PullToRefreshListView.PullToRefreshContent>
+            
+        </controls:PullToRefreshListView>
     </Grid>
 </base:PageBase>
+
