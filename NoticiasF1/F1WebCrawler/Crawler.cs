@@ -56,25 +56,10 @@ namespace F1WebCrawler
         {
             var noticia = new Noticia();
 
-            noticia.Titulo = node.Descendants("div").FirstOrDefault()
-                .Descendants("h2").FirstOrDefault()
-                .Descendants("a").FirstOrDefault().InnerHtml;
-
             noticia.Enlace = node.Descendants("div").FirstOrDefault()
                 .Descendants("h2").FirstOrDefault()
                 .Descendants("a").FirstOrDefault()
                 .ChildAttributes("href").FirstOrDefault().Value;
-
-            noticia.Imagen = node.Descendants("div").FirstOrDefault()
-                .Descendants("span").FirstOrDefault()
-                .Descendants("a").FirstOrDefault()
-                .Descendants("img").FirstOrDefault()
-                .ChildAttributes("src").FirstOrDefault().Value;
-
-            var fecha = node.Descendants("div").FirstOrDefault()
-                    .Descendants("div").FirstOrDefault(x => x.GetAttributeValue("class", "").Equals("submitted en_bloque"))
-                    .Descendants("span").FirstOrDefault(x => x.GetAttributeValue("class", "").Equals("fecha")).InnerText;
-            noticia.Fecha = LaF1ExtraerFecha(fecha);
 
             return noticia;
         }
@@ -83,54 +68,11 @@ namespace F1WebCrawler
         {
             var noticia = new Noticia();
 
-            noticia.Titulo = node.Descendants("h2").FirstOrDefault().Descendants("a").FirstOrDefault().InnerHtml;
-
             noticia.Enlace = node.Descendants("h2").FirstOrDefault()
                     .Descendants("a").FirstOrDefault()
                     .ChildAttributes("href").FirstOrDefault().Value;
 
-            var clienteWeb = new HttpClient();
-            var html = await clienteWeb.GetStringAsync(node.Descendants("h2").FirstOrDefault()
-                        .Descendants("a").FirstOrDefault()
-                        .ChildAttributes("href").FirstOrDefault().Value);
-
-            var documento = new HtmlDocument();
-            documento.LoadHtml(html);
-
-            noticia.Imagen = LaF1ExtraerImagen(documento);
-
-            var fecha =
-                node.Descendants("div")
-                    .FirstOrDefault(x => x.GetAttributeValue("class", "").Equals("submitted en_bloque"))
-                    .Descendants("span")
-                    .FirstOrDefault(x => x.GetAttributeValue("class", "").Equals("fecha"))
-                    .InnerText;
-
-            noticia.Fecha = LaF1ExtraerFecha(fecha);
-            //noticia.Contenido = await LaF1ExtraerContenido(noticia.Enlace);
-
             return noticia;
-        }
-
-        public async Task<string> LaF1ExtraerContenido(string noticiaEnlace)
-        {
-            string result = "";
-            StringBuilder sb = new StringBuilder();
-            var clienteWeb = new HttpClient();
-            var html = await clienteWeb.GetStringAsync(noticiaEnlace);
-            var documento = new HtmlDocument();
-            documento.LoadHtml(html);
-
-            var nodosTexto =
-                documento.DocumentNode.Descendants("div")
-                    .Where(x => x.GetAttributeValue("class", "").Equals("cuerpo  mb mt")).ToList();
-            foreach (var node in nodosTexto)
-            {
-                sb.Append(node.InnerText);
-                sb.Append(Environment.NewLine);
-                sb.Append(Environment.NewLine);
-            }
-            return sb.ToString();
         }
 
         private string LaF1ExtraerImagen(HtmlDocument documento)
@@ -143,7 +85,7 @@ namespace F1WebCrawler
         }
 
 
-        private DateTime LaF1ExtraerFecha(string fecha)
+        public DateTime LaF1ExtraerFecha(string fecha)
         {
             string[] fechaSplit = fecha.Split(' ');
             if (fechaSplit[3] == "dic")
@@ -152,6 +94,55 @@ namespace F1WebCrawler
             }
             fecha = $"{fechaSplit[2]} /{fechaSplit[3]}/{fechaSplit[4]} {fechaSplit[6]}";
             return Convert.ToDateTime(fecha);
+        }
+
+        public async Task<string> LaF1ExtraerTitulo(string enlace)
+        {
+            string resultado = string.Empty;
+            var clienteWeb = new HttpClient();
+            var html = await clienteWeb.GetStringAsync(enlace);
+            var documento = new HtmlDocument();
+            documento.LoadHtml(html);
+
+            resultado =
+                documento.DocumentNode.Descendants("h1")
+                    .FirstOrDefault(x => x.GetAttributeValue("class", "").Equals("supertitular"))
+                    .InnerText;
+
+            return resultado;
+        }
+
+        public async Task<Noticia> LaF1ExtraerNoticia(string enlace)
+        {
+            var resultado = new Noticia();
+            var clienteWeb = new HttpClient();
+            var html = await clienteWeb.GetStringAsync(enlace);
+            var documento = new HtmlDocument();
+            documento.LoadHtml(html);
+
+            resultado.Enlace = enlace;
+            resultado.Titulo = documento.DocumentNode.Descendants("h1")
+                    .FirstOrDefault(x => x.GetAttributeValue("class", "").Equals("supertitular")).InnerText;
+
+            var sb = new StringBuilder();
+            var nodosTexto =
+                documento.DocumentNode.Descendants("div")
+                    .Where(x => x.GetAttributeValue("class", "").Equals("cuerpo  mb mt")).ToList();
+            foreach (var node in nodosTexto)
+            {
+                sb.Append(node.InnerText);
+                sb.Append(Environment.NewLine);
+            }
+
+            resultado.Contenido = sb.ToString();
+            resultado.Imagen = LaF1ExtraerImagen(documento);
+
+            var fecha = documento.DocumentNode.Descendants("span")
+                    .FirstOrDefault(x => x.GetAttributeValue("class", "").Equals("fecha")).InnerText;
+
+            resultado.Fecha = LaF1ExtraerFecha(fecha);
+
+            return resultado;
         }
     }
 }

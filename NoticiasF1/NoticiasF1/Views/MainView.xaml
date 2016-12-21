@@ -33,40 +33,12 @@
                                         PullThreshold="50"
                                         RefreshCommand="{Binding RefrescarListadoCommand}"
                                         Grid.Row="1"
-                                        SelectionChanged="ViewModel.SelectionChanged">
-            <controls:PullToRefreshListView.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Margin="0 5">
-                        <Image Source="{Binding Imagen}" Opacity=".85"
-                                   HorizontalAlignment="Left"
-                                   Stretch="UniformToFill"/>
-                        <TextBlock Text="{Binding Fecha}"
-                                       FontSize="10"
-                                       Foreground="Azure"
-                                       Margin="0 5 0 0"
-                                       FontWeight="SemiBold"/>
-                        <TextBlock Text="{Binding Titulo}"
-                                       HorizontalAlignment="Center"
-                                       FontSize="18"
-                                       FontWeight="Bold"
-                                       Foreground="Wheat"
-                                       Opacity=".9"
-                                       TextWrapping="Wrap"
-                                       Margin="10 5"/>
-                        <Rectangle Fill="Wheat" Height="1"/>
-                    </StackPanel>
-                </DataTemplate>
-            </controls:PullToRefreshListView.ItemTemplate>
-            <!--<controls:PullToRefreshListView.RefreshIndicatorContent>
-                <TextBlock Text="Suelta para actualizar"
-                           Foreground="Wheat"
-                           FontSize="12"
-                           HorizontalAlignment="Center"/>
-            </controls:PullToRefreshListView.RefreshIndicatorContent>-->
+                                        SelectionChanged="ViewModel.SelectionChanged"
+                                        ItemTemplate="{StaticResource NewsDataTemplate}" >
             <controls:PullToRefreshListView.PullToRefreshContent>
                 <TextBlock Text="Actualizando"/>
             </controls:PullToRefreshListView.PullToRefreshContent>
-            
+
         </controls:PullToRefreshListView>
     </Grid>
 </base:PageBase>

@@ -1,12 +1,15 @@
 ﻿using F1WebCrawler;
 using F1WebCrawler.Model;
+using Microsoft.EntityFrameworkCore;
 using NoticiasF1.Model;
 using NoticiasF1.ViewModels.Base;
 using NoticiasF1.Views;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Windows.UI.Popups;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
@@ -57,16 +60,10 @@ namespace NoticiasF1.ViewModels
 
         public override async Task OnNavigatedTo(NavigationEventArgs args)
         {
-            if (!NoticiasDisponibles.NoticiasCargadas)
-            {
-                BarraDeProgesoVisibilidad = true;
-                await CargarNoticias();
-                BarraDeProgesoVisibilidad = false;
-            }
-            else
-            {
-                CargaEscalonada();
-            }
+            await MigrarBaseDeDatos();
+            BarraDeProgesoVisibilidad = true;
+            await CargarNoticias();
+            BarraDeProgesoVisibilidad = false;
         }
 
         public void SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -84,15 +81,57 @@ namespace NoticiasF1.ViewModels
 
         private async Task CargarNoticias()
         {
-            var crawler = new Crawler();
-            NoticiasDisponibles.Noticias = await crawler.Noticias();
-            CargaEscalonada();
-            NoticiasDisponibles.NoticiasCargadas = true;
+
+            using (var db = new Contexto())
+            {
+                Noticias = new ObservableCollection<Noticia>(await
+                    db.Noticias.Where(x => x.Fecha >= DateTime.Now.AddDays(-1))
+                    .OrderByDescending(x => x.Fecha).ToListAsync());
+
+                if (!Noticias.Any())
+                {
+                    await ExtraerNoticiasLaF1Es();
+                }
+            }
+
         }
 
-        private void CargaEscalonada()
+        private async Task ExtraerNoticiasLaF1Es()
         {
-            Noticias = new ObservableCollection<Noticia>(NoticiasDisponibles.Noticias);
+            var crawler = new Crawler();
+            var enlaceNoticias = await crawler.Noticias();
+
+            try
+            {
+                using (var db = new Contexto())
+                {
+                    foreach (var enlaceNoticia in enlaceNoticias)
+                    {
+                        var existe = await db.Noticias.AnyAsync(x => x.Enlace == enlaceNoticia.Enlace);
+                        if (!existe)
+                        {
+                            var noticia = await crawler.LaF1ExtraerNoticia(enlaceNoticia.Enlace);
+                            db.Noticias.Add(noticia);
+                            await db.SaveChangesAsync();
+                        }
+                    }
+                    Noticias = new ObservableCollection<Noticia>(await db.Noticias.Where(x => x.Fecha >= DateTime.Now.AddDays(-1)).ToListAsync());
+                }
+            }
+            catch (Exception exception)
+            {
+                var dialog = new MessageDialog($"Error al recolectar noticias de LaF1.es: {exception.Message}");
+                await dialog.ShowAsync();
+                throw;
+            }
+        }
+
+        private async Task MigrarBaseDeDatos()
+        {
+            using (var db = new Contexto())
+            {
+                await db.Database.MigrateAsync();
+            }
         }
 
         #endregion
@@ -100,7 +139,6 @@ namespace NoticiasF1.ViewModels
         #region Comandos
 
         private ICommand refrescarListadoCommand;
-
         public ICommand RefrescarListadoCommand
         {
             get
@@ -112,7 +150,7 @@ namespace NoticiasF1.ViewModels
         private async void RefrescarListadoExecute()
         {
             BarraDeProgesoVisibilidad = true;
-            await CargarNoticias();
+            await ExtraerNoticiasLaF1Es();
             BarraDeProgesoVisibilidad = false;
         }
 

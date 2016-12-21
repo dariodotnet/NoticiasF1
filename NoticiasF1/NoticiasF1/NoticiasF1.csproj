@@ -89,6 +89,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
+    <None Include="App.config" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -97,6 +98,12 @@
     </Compile>
     <Compile Include="Converters\BooleanToVisibility.cs" />
     <Compile Include="FakeData\FakeItems.cs" />
+    <Compile Include="Migrations\20161220221246_PrimeraMigracion.cs" />
+    <Compile Include="Migrations\20161220221246_PrimeraMigracion.designer.cs">
+      <DependentUpon>20161220221246_PrimeraMigracion.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\ContextoModelSnapshot.cs" />
+    <Compile Include="Model\Contexto.cs" />
     <Compile Include="Model\NoticiasDisponibles.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\Base\DelegateCommand.cs" />
@@ -142,6 +149,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Styles\ListViewDataTemplates.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
     <Page Include="Views\MainView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

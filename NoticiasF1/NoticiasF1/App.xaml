@@ -7,9 +7,14 @@
     RequestedTheme="Dark">
     <Application.Resources>
         <ResourceDictionary>
+            
             <locator:ViewModelLocator x:Key="Locator"/>
 
             <converters:BooleanToVisibility x:Key="BooleanToVisibility"/>
+
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles/ListViewDataTemplates.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
