@@ -115,7 +115,9 @@ namespace NoticiasF1.ViewModels
                             await db.SaveChangesAsync();
                         }
                     }
-                    Noticias = new ObservableCollection<Noticia>(await db.Noticias.Where(x => x.Fecha >= DateTime.Now.AddDays(-1)).ToListAsync());
+                    Noticias = new ObservableCollection<Noticia>(await db.Noticias
+                        .Where(x => x.Fecha >= DateTime.Now.AddDays(-1))
+                        .OrderByDescending(x => x.Fecha).ToListAsync());
                 }
             }
             catch (Exception exception)
