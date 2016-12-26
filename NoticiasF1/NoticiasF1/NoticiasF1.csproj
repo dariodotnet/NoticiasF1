@@ -102,6 +102,10 @@
     <Compile Include="Migrations\20161220221246_PrimeraMigracion.designer.cs">
       <DependentUpon>20161220221246_PrimeraMigracion.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20161226185454_AddedViewField.cs" />
+    <Compile Include="Migrations\20161226185454_AddedViewField.designer.cs">
+      <DependentUpon>20161226185454_AddedViewField.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\ContextoModelSnapshot.cs" />
     <Compile Include="Model\Contexto.cs" />
     <Compile Include="Model\NoticiasDisponibles.cs" />

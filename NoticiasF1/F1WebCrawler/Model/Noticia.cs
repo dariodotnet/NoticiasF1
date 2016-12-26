@@ -10,5 +10,6 @@ namespace F1WebCrawler.Model
         public DateTime Fecha { get; set; }
         public string Imagen { get; set; }
         public string Enlace { get; set; }
+        public bool? Visto { get; set; }
     }
 }

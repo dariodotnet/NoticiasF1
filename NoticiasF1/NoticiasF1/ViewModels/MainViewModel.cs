@@ -85,7 +85,7 @@ namespace NoticiasF1.ViewModels
             using (var db = new Contexto())
             {
                 Noticias = new ObservableCollection<Noticia>(await
-                    db.Noticias.Where(x => x.Fecha >= DateTime.Now.AddDays(-1))
+                    db.Noticias.Where(x => x.Fecha >= DateTime.Now.AddDays(-15))
                     .OrderByDescending(x => x.Fecha).ToListAsync());
 
                 if (!Noticias.Any())
@@ -116,15 +116,14 @@ namespace NoticiasF1.ViewModels
                         }
                     }
                     Noticias = new ObservableCollection<Noticia>(await db.Noticias
-                        .Where(x => x.Fecha >= DateTime.Now.AddDays(-1))
+                        .Where(x => x.Fecha >= DateTime.Now.AddDays(-15))
                         .OrderByDescending(x => x.Fecha).ToListAsync());
                 }
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                var dialog = new MessageDialog($"Error al recolectar noticias de LaF1.es: {exception.Message}");
+                var dialog = new MessageDialog($"Error al recuperar noticias, {ex.Message}");
                 await dialog.ShowAsync();
-                throw;
             }
         }
 

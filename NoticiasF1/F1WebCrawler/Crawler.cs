@@ -1,4 +1,5 @@
-﻿using F1WebCrawler.Model;
+﻿using F1WebCrawler.Core;
+using F1WebCrawler.Model;
 using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,8 @@ namespace F1WebCrawler
 {
     public class Crawler
     {
+        private INoticia laF1Noticias;
+
         public async Task<IEnumerable<Noticia>> Noticias()
         {
             var noticias = new List<Noticia>();
@@ -84,7 +87,6 @@ namespace F1WebCrawler
                 .ChildAttributes("src").FirstOrDefault().Value;
         }
 
-
         public DateTime LaF1ExtraerFecha(string fecha)
         {
             string[] fechaSplit = fecha.Split(' ');
@@ -120,9 +122,12 @@ namespace F1WebCrawler
             var documento = new HtmlDocument();
             documento.LoadHtml(html);
 
+            laF1Noticias = new CrawlerLaF1Es(documento);
+
+
             resultado.Enlace = enlace;
-            resultado.Titulo = documento.DocumentNode.Descendants("h1")
-                    .FirstOrDefault(x => x.GetAttributeValue("class", "").Equals("supertitular")).InnerText;
+            resultado.Titulo = laF1Noticias.GetTitle();
+            resultado.Visto = false;
 
             var sb = new StringBuilder();
             var nodosTexto =
@@ -135,7 +140,7 @@ namespace F1WebCrawler
             }
 
             resultado.Contenido = sb.ToString();
-            resultado.Imagen = LaF1ExtraerImagen(documento);
+            resultado.Imagen = laF1Noticias.GetImage(); //LaF1ExtraerImagen(documento);
 
             var fecha = documento.DocumentNode.Descendants("span")
                     .FirstOrDefault(x => x.GetAttributeValue("class", "").Equals("fecha")).InnerText;
@@ -143,6 +148,15 @@ namespace F1WebCrawler
             resultado.Fecha = LaF1ExtraerFecha(fecha);
 
             return resultado;
+        }
+
+        private async Task<HtmlDocument> webDocument(string link)
+        {
+            var result = new HtmlDocument();
+            var client = new HttpClient();
+            var html = await client.GetStringAsync(link);
+            result.LoadHtml(html);
+            return result;
         }
     }
 }

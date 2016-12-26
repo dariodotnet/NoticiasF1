@@ -34,8 +34,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Core\CrawlerLaF1Es.cs" />
+    <Compile Include="Core\INews.cs" />
     <Compile Include="Crawler.cs" />
     <Compile Include="Model\Noticia.cs" />
+    <Compile Include="WebLinks.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

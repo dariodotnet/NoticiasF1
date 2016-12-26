@@ -251,3 +251,6 @@ paket-files/
 .idea/
 *.sln.iml
 /NoticiasF1/MVVMBase
+/NoticiasF1/Crawler.Tests
+/NoticiasF1/NUnit.CrawlerTest
+/NoticiasF1/F1WebCrawler.Test
